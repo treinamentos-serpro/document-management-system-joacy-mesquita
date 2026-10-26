@@ -1,5 +1,22 @@
 const DocumentError = require('../documentError');
 
+function compareDocuments(left, right) {
+  if (left.uploadedAt !== right.uploadedAt) {
+    return left.uploadedAt > right.uploadedAt ? -1 : 1;
+  }
+  return left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
+}
+
+async function rollbackUpload(fileRepository, id, saveError) {
+  try {
+    await fileRepository.remove(id);
+  } catch (cleanupError) {
+    throw new DocumentError('STORAGE_ERROR', 'Não foi possível remover o arquivo após a falha.', {
+      cause: new AggregateError([saveError, cleanupError]),
+    });
+  }
+}
+
 class DocumentService {
   constructor(documentRepository, fileRepository, owner) {
     this.documentRepository = documentRepository;
@@ -19,13 +36,7 @@ class DocumentService {
     try {
       return await this.documentRepository.save(document);
     } catch (error) {
-      try {
-        await this.fileRepository.remove(id);
-      } catch (cleanupError) {
-        throw new DocumentError('STORAGE_ERROR', 'Não foi possível remover o arquivo após a falha.', {
-          cause: new AggregateError([error, cleanupError]),
-        });
-      }
+      await rollbackUpload(this.fileRepository, id, error);
       throw new DocumentError('INTERNAL_ERROR', 'Não foi possível registrar o documento.', {
         cause: error,
       });
@@ -34,12 +45,7 @@ class DocumentService {
 
   async list() {
     const documents = await this.documentRepository.findAll();
-    return documents.sort((left, right) => {
-      if (left.uploadedAt !== right.uploadedAt) {
-        return left.uploadedAt > right.uploadedAt ? -1 : 1;
-      }
-      return left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
-    });
+    return [...documents].sort(compareDocuments);
   }
 
   async getDownload(id) {

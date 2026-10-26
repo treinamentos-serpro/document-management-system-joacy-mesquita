@@ -22,17 +22,20 @@ async function request(path, options = {}) {
   return response;
 }
 
-export async function listDocuments({ signal } = {}) {
-  const response = await request('/documents', { signal });
+async function requestJson(path, options) {
+  const response = await request(path, options);
   return response.json();
+}
+
+export async function listDocuments({ signal } = {}) {
+  return requestJson('/documents', { signal });
 }
 
 export async function uploadDocument(file) {
   if (!file) throw new Error('Selecione um arquivo para enviar.');
   const body = new FormData();
   body.append('file', file);
-  const response = await request('/upload', { method: 'POST', body });
-  return response.json();
+  return requestJson('/upload', { method: 'POST', body });
 }
 
 export async function downloadDocument(id) {
