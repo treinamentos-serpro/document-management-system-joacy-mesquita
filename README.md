@@ -66,11 +66,21 @@ upload e pode ser recarregada pelo botão **Atualizar lista**.
 Falhas de conexão e erros da API são apresentados na interface.
 
 Os componentes compartilham um cliente `fetch` que usa o prefixo `/api`.
+O cliente centraliza o tratamento HTTP e a leitura de respostas JSON; downloads
+mantêm a leitura binária separada.
 O proxy de desenvolvimento do Vite remove esse prefixo e encaminha as chamadas
 ao backend. Para produção, configure o servidor para encaminhar `/api` ao backend
 da mesma forma; `vite preview` não substitui essa configuração.
 
 Execute `npm run build` em `frontend` para gerar a versão de produção e
 `npm test` para testar o cliente de API com o runner nativo do Node.
+
+### Organização dos serviços
+
+O serviço de documentos coordena os casos de uso sem depender de HTTP.
+A compensação de upload e o critério de ordenação ficam em funções internas
+com responsabilidades específicas. A listagem ordena uma cópia do array,
+sem alterar a coleção fornecida pelo repositório.
+Os testes unitários do serviço complementam os testes HTTP do backend.
 
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
