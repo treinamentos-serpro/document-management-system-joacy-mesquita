@@ -107,6 +107,59 @@ test('arquivos vazios e arquivos com tamanho exatamente igual ao limite são ace
   }
 });
 
+test('listagem vazia retorna 200 e um array JSON sem criar o diretório de arquivos', async (t) => {
+  const { url, config } = await setup(t);
+  const response = await fetch(`${url}/documents`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /application\/json/);
+  assert.deepEqual(await response.json(), []);
+  await assert.rejects(fs.stat(config.storageDir), { code: 'ENOENT' });
+});
+
+test('uploads com o mesmo nome mantêm IDs e conteúdos independentes no download', async (t) => {
+  const { url, config } = await setup(t);
+  const documents = [];
+  const contents = ['primeiro', 'segundo'];
+  for (const content of contents) {
+    const response = await upload(url, content, 'repetido.txt');
+    assert.equal(response.status, 201);
+    documents.push(await response.json());
+  }
+  assert.notEqual(documents[0].id, documents[1].id);
+  assert.deepEqual((await fs.readdir(config.storageDir)).sort(), documents.map(({ id }) => id).sort());
+
+  const response = await fetch(`${url}/documents`);
+  assert.equal(response.status, 200);
+  const listed = await response.json();
+  assert.equal(listed.length, 2);
+  for (const [index, document] of documents.entries()) {
+    assert.deepEqual(listed.find(({ id }) => id === document.id), document);
+    const download = await fetch(`${url}/documents/${document.id}/download`);
+    assert.equal(download.status, 200);
+    assert.equal(download.headers.get('content-type'), 'application/octet-stream');
+    assert.equal(download.headers.get('content-disposition'), 'attachment; filename="repetido.txt"');
+    assert.equal(await download.text(), contents[index]);
+  }
+});
+
+test('upload usa o owner configurado e ignora metadados enviados pelo cliente', async (t) => {
+  const { url } = await setup(t);
+  const form = new FormData();
+  form.append('file', new Blob(['abc']), 'arquivo.txt');
+  form.append('owner', 'client-owner');
+  form.append('id', 'client-id');
+  form.append('size', '999');
+  form.append('uploadedAt', '2000-01-01T00:00:00.000Z');
+  const response = await fetch(`${url}/upload`, { method: 'POST', body: form });
+  assert.equal(response.status, 201);
+  const document = await response.json();
+  assert.equal(document.owner, 'test-owner');
+  assert.notEqual(document.id, 'client-id');
+  assert.equal(document.size, 3);
+  assert.notEqual(document.uploadedAt, '2000-01-01T00:00:00.000Z');
+  assert.deepEqual(await (await fetch(`${url}/documents`)).json(), [document]);
+});
+
 test('arquivos acima do limite retornam 413 e são removidos', async (t) => {
   const { url, config } = await setup(t);
   for (const size of [17, 100]) {
