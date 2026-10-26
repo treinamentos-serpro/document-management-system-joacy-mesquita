@@ -1,86 +1,37 @@
-# Document Management System com GitHub Copilot
+<div align="center">
 
-<img src="https://octodex.github.com/images/Professortocat_v2.png" align="right" height="200px" />
+# 🎉 Congratulations Joacy! 🎉
 
-Hey Joacy!
+<img src="https://octodex.github.com/images/welcometocat.png" height="200px" />
 
-Mona here. I'm done preparing your exercise. Hope you enjoy! 💚
+### 🌟 You've successfully completed the exercise! 🌟
 
-Remember, it's self-paced so feel free to take a break! ☕️
+## 🚀 Share Your Success!
 
-[![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/treinamentos-serpro/document-management-system-joacy-mesquita/issues/1)
+**Show off your new skills and inspire others!**
+
+<a href="https://twitter.com/intent/tweet?text=I%20just%20completed%20the%20%22Document%20Management%20System%20com%20GitHub%20Copilot%22%20GitHub%20Skills%20hands-on%20exercise!%20%F0%9F%8E%89%0A%0Ahttps%3A%2F%2Fgithub.com%2Ftreinamentos-serpro%2Fdocument-management-system-joacy-mesquita%0A%0A%23GitHubSkills%20%23OpenSource%20%23GitHubLearn" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.shields.io/badge/Share%20on%20X-1da1f2?style=for-the-badge&logo=x&logoColor=white" alt="Share on X" />
+</a>
+<a href="https://bsky.app/intent/compose?text=I%20just%20completed%20the%20%22Document%20Management%20System%20com%20GitHub%20Copilot%22%20GitHub%20Skills%20hands-on%20exercise!%20%F0%9F%8E%89%0A%0Ahttps%3A%2F%2Fgithub.com%2Ftreinamentos-serpro%2Fdocument-management-system-joacy-mesquita%0A%0A%23GitHubSkills%20%23OpenSource%20%23GitHubLearn" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.shields.io/badge/Share%20on%20Bluesky-0085ff?style=for-the-badge&logo=bluesky&logoColor=white" alt="Share on Bluesky" />
+</a>
+<a href="https://www.linkedin.com/feed/?shareActive=true&text=I%20just%20completed%20the%20%22Document%20Management%20System%20com%20GitHub%20Copilot%22%20GitHub%20Skills%20hands-on%20exercise!%20%F0%9F%8E%89%0A%0Ahttps%3A%2F%2Fgithub.com%2Ftreinamentos-serpro%2Fdocument-management-system-joacy-mesquita%0A%0A%23GitHubSkills%20%23OpenSource%20%23GitHubLearn" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.shields.io/badge/Share%20on%20LinkedIn-0077b5?style=for-the-badge&logo=linkedin&logoColor=white" alt="Share on LinkedIn" />
+</a>
+
+### 🎯 What's Next?
+
+**Keep the momentum going!**
+
+[![](https://img.shields.io/badge/Return%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/treinamentos-serpro/document-management-system-joacy-mesquita/issues/1)
+[![GitHub Skills](https://img.shields.io/badge/Explore%20GitHub%20Skills-000000?style=for-the-badge&logo=github&logoColor=white)](https://learn.github.com/skills)
+
+*There's no better way to learn than building things!* 🚀
+
+</div>
 
 ---
 
-## Backend DMS
-
-Execute `npm start` em `backend` (após `npm install`). Para executar os testes,
-use `npm test` no mesmo diretório.
-
-- `POST /upload`: envie exatamente um arquivo no campo `file` de um formulário
-  `multipart/form-data`. Retorna `201` com `id`, `originalName`, `size`,
-  `uploadedAt` e `owner`.
-- `GET /documents`: retorna os metadados, do mais recente para o mais antigo,
-  com desempate por identificador em ordem crescente.
-- `GET /documents/:id/download`: retorna o arquivo como anexo ou `404` quando
-  o documento ou seu arquivo não existir.
-- `GET /health`: verificação de saúde.
-
-Configuração por variáveis de ambiente:
-
-| Variável | Padrão |
-| --- | --- |
-| `PORT` | `3000` |
-| `DMS_STORAGE_DIR` | `backend/storage`, independente do diretório de execução |
-| `DMS_MAX_FILE_SIZE_BYTES` | `10485760` (10 MiB, inclusive) |
-| `DMS_OWNER_ID` | `local-user` |
-
-Um `DMS_STORAGE_DIR` relativo é resolvido a partir do diretório de execução.
-O diretório é criado no primeiro upload. O limite deve ser um inteiro positivo
-menor que `Number.MAX_SAFE_INTEGER`; configuração inválida impede a inicialização.
-Qualquer tipo de arquivo é aceito, inclusive arquivos vazios.
-
-```sh
-curl -F 'file=@./relatorio.pdf' http://localhost:3000/upload
-curl http://localhost:3000/documents
-curl -OJ http://localhost:3000/documents/ID_RETORNADO/download
-```
-
-Erros seguem `{ "error": { "code": "...", "message": "..." } }`, com status
-`400` para upload inválido, `413` para tamanho excedido, `404` para documento
-ausente e `500` para falhas internas. Caminhos locais não são expostos.
-
-Os arquivos ficam exclusivamente no filesystem local, com nomes UUID gerados
-pelo sistema. Os metadados ficam em memória e são perdidos ao reiniciar o
-processo; arquivos remanescentes não reaparecem na listagem. O campo `owner`
-é apenas um metadado, **não** autenticação ou isolamento entre usuários.
-O frontend acessa essas rotas pelo proxy `/api` do Vite.
-
-## Frontend DMS
-
-Com o backend em execução na porta `3000`, execute `npm run dev` em `frontend`
-(após `npm install`) e acesse `http://localhost:5173`.
-A interface permite selecionar um arquivo, enviá-lo, consultar os metadados e
-baixar documentos. A lista é carregada ao abrir a página, atualizada após cada
-upload e pode ser recarregada pelo botão **Atualizar lista**.
-Falhas de conexão e erros da API são apresentados na interface.
-
-Os componentes compartilham um cliente `fetch` que usa o prefixo `/api`.
-O cliente centraliza o tratamento HTTP e a leitura de respostas JSON; downloads
-mantêm a leitura binária separada.
-O proxy de desenvolvimento do Vite remove esse prefixo e encaminha as chamadas
-ao backend. Para produção, configure o servidor para encaminhar `/api` ao backend
-da mesma forma; `vite preview` não substitui essa configuração.
-
-Execute `npm run build` em `frontend` para gerar a versão de produção e
-`npm test` para testar o cliente de API com o runner nativo do Node.
-
-### Organização dos serviços
-
-O serviço de documentos coordena os casos de uso sem depender de HTTP.
-A compensação de upload e o critério de ordenação ficam em funções internas
-com responsabilidades específicas. A listagem ordena uma cópia do array,
-sem alterar a coleção fornecida pelo repositório.
-Os testes unitários do serviço complementam os testes HTTP do backend.
-
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+
